@@ -11,6 +11,7 @@ export interface Expense {
 
 export interface ExpenseFormProps {
   onAddExpense: (expense: Omit<Expense, "id">) => void;
+  onAddMultipleExpenses: (expenses: Omit<Expense, "id">[]) => void;
   kmRate: number;
 }
 

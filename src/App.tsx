@@ -14,6 +14,16 @@ function App() {
     setExpenses([...expenses, { ...expense, id: Date.now() }]);
   };
 
+  const addMultipleExpenses = (newExpenses: Omit<Expense, "id">[]) => {
+    setExpenses((prevExpenses) => [
+      ...prevExpenses,
+      ...newExpenses.map((expense, index) => ({
+        ...expense,
+        id: Date.now() + index,
+      })),
+    ]);
+  };
+
   const deleteExpense = (id: number) => {
     setExpenses(expenses.filter((exp) => exp.id !== id));
   };
@@ -101,7 +111,11 @@ function App() {
           />
         </div>
 
-        <ExpenseForm onAddExpense={addExpense} kmRate={kmRate} />
+        <ExpenseForm
+          onAddExpense={addExpense}
+          onAddMultipleExpenses={addMultipleExpenses}
+          kmRate={kmRate}
+        />
 
         <ExpenseList expenses={expenses} onDeleteExpense={deleteExpense} kmRate={kmRate} />
 
