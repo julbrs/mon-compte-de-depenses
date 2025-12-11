@@ -124,9 +124,10 @@ export const generatePDF = async (
   const finalPdfBytes = await finalPdfDoc.save();
 
   // Télécharger le PDF
-  const fileName = `Compte_Depenses_${volunteerName.replace(/\s+/g, "_")}_${
-    new Date().toISOString().split("T")[0]
-  }.pdf`;
+  const fileName = `xxxx-${new Date()
+    .toISOString()
+    .split("T")[0]
+    .replace(/-/g, "")}-${volunteerName.replace(/\s+/g, "_")}-A1.pdf`;
 
   const blob = new Blob([finalPdfBytes as BlobPart], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
