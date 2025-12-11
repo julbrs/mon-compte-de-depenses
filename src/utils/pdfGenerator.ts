@@ -1,21 +1,15 @@
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { PDFDocument } from "pdf-lib";
 import type { Expense } from "../types/expense";
 
-// Extend jsPDF type to include autoTable
-declare module "jspdf" {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-    lastAutoTable: { finalY: number };
-  }
-}
-
-export const generatePDF = (
+export const generatePDF = async (
   volunteerName: string,
   expenses: Expense[],
   kmRate: number,
-  total: number
-): void => {
+  total: number,
+  additionalInfo?: string
+): Promise<void> => {
   const doc = new jsPDF();
 
   // En-tête
@@ -23,7 +17,7 @@ export const generatePDF = (
   doc.text("COMPTE DE DÉPENSES", 105, 20, { align: "center" });
 
   doc.setFontSize(12);
-  doc.text("Association de sentier pédestre", 105, 30, { align: "center" });
+  doc.text("Pour: Sentiers Frontaliers", 105, 30, { align: "center" });
 
   // Informations du bénévole
   doc.setFontSize(11);
@@ -41,18 +35,21 @@ export const generatePDF = (
         `${expense.amount?.toFixed(2)} $`,
       ];
     } else {
+      const formattedDate = expense.kmDate
+        ? new Date(expense.kmDate).toLocaleDateString("fr-CA")
+        : "";
       return [
         index + 1,
         "Kilométrage",
         expense.description,
-        `${expense.kilometers} km × ${kmRate} $/km`,
+        `Date: ${formattedDate}\n${expense.kilometers} km × ${kmRate} $/km`,
         `${((expense.kilometers || 0) * kmRate).toFixed(2)} $`,
       ];
     }
   });
 
   // Tableau des dépenses
-  doc.autoTable({
+  autoTable(doc, {
     startY: 60,
     head: [["#", "Type", "Description", "Détails", "Montant"]],
     body: tableData,
@@ -69,30 +66,73 @@ export const generatePDF = (
   });
 
   // Total
-  const finalY = doc.lastAutoTable.finalY + 10;
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.text(`TOTAL À REMBOURSER : ${total.toFixed(2)} $`, 105, finalY, {
     align: "center",
   });
 
+  // Informations complémentaires (si présentes)
+  let currentY = finalY + 15;
+  if (additionalInfo && additionalInfo.trim()) {
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("Informations complémentaires :", 20, currentY);
+    doc.setFont("helvetica", "normal");
+    const lines = doc.splitTextToSize(additionalInfo, 170);
+    doc.text(lines, 20, currentY + 6);
+    currentY += 6 + lines.length * 5 + 5;
+  }
+
   // Note de bas de page
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  const noteY = finalY + 20;
-  doc.text("Note : Les factures originales sont jointes à ce compte de dépenses.", 20, noteY);
-  doc.text("Taux de remboursement kilométrique : " + kmRate + " $/km", 20, noteY + 5);
+  doc.text("Taux de remboursement kilométrique : " + kmRate + " $/km", 20, currentY);
 
-  // Signature
-  const signatureY = Math.max(noteY + 25, 250);
-  doc.text("Signature du bénévole : _________________________", 20, signatureY);
-  doc.text("Date : _________________________", 20, signatureY + 7);
+  const invoiceExpenses = expenses.filter((e) => e.type === "invoice");
+  if (invoiceExpenses.length > 0) {
+    doc.setFont("helvetica", "bold");
+    doc.text("Les factures suivantes sont jointes à ce document :", 20, currentY + 6);
+    doc.setFont("helvetica", "normal");
+    invoiceExpenses.forEach((expense, index) => {
+      doc.text(`- ${expense.fileName}`, 25, currentY + 12 + index * 5);
+    });
+  }
 
-  // Générer le nom du fichier
+  // Convertir le PDF principal en bytes
+  const mainPdfBytes = doc.output("arraybuffer");
+
+  // Créer le document PDF final avec pdf-lib
+  const finalPdfDoc = await PDFDocument.load(mainPdfBytes);
+
+  // Ajouter les factures PDF
+  for (const expense of invoiceExpenses) {
+    if (expense.file) {
+      try {
+        const fileArrayBuffer = await expense.file.arrayBuffer();
+        const invoicePdf = await PDFDocument.load(fileArrayBuffer);
+        const copiedPages = await finalPdfDoc.copyPages(invoicePdf, invoicePdf.getPageIndices());
+        copiedPages.forEach((page) => finalPdfDoc.addPage(page));
+      } catch (error) {
+        console.error(`Erreur lors de l'ajout de ${expense.fileName}:`, error);
+      }
+    }
+  }
+
+  // Générer le PDF final
+  const finalPdfBytes = await finalPdfDoc.save();
+
+  // Télécharger le PDF
   const fileName = `Compte_Depenses_${volunteerName.replace(/\s+/g, "_")}_${
     new Date().toISOString().split("T")[0]
   }.pdf`;
 
-  // Télécharger le PDF
-  doc.save(fileName);
+  const blob = new Blob([finalPdfBytes as BlobPart], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
 };

@@ -1,6 +1,6 @@
-# Compte de Dépenses - Application React
+# Compte de Dépenses
 
-Application web pour la gestion des comptes de dépenses des bénévoles d'une association de sentier pédestre au Québec.
+Application web pour la gestion des comptes de dépenses des bénévoles.
 
 ## 📋 Fonctionnalités
 
@@ -17,13 +17,13 @@ Application web pour la gestion des comptes de dépenses des bénévoles d'une a
 ### Installation
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Développement
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 L'application sera accessible à l'adresse : `http://localhost:5173/mon-compte-de-depenses/`
@@ -31,7 +31,7 @@ L'application sera accessible à l'adresse : `http://localhost:5173/mon-compte-d
 ### Build de production
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 ### Déploiement sur GitHub Pages
@@ -40,7 +40,7 @@ npm run build
 2. Exécutez la commande de déploiement :
 
 ```bash
-npm run deploy
+pnpm run deploy
 ```
 
 3. Activez GitHub Pages dans les paramètres de votre dépôt (branch: `gh-pages`)

@@ -4,6 +4,7 @@ export interface Expense {
   description: string;
   amount?: number;
   kilometers?: number;
+  kmDate?: string;
   fileName?: string;
   file?: File;
 }
