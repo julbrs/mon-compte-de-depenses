@@ -1,5 +1,11 @@
 import type { InvoiceListProps } from "../types/invoice";
 
+const formatLocalDate = (value: string): string => {
+  const [year, month, day] = value.split("-").map(Number);
+  const localDate = new Date(year, (month || 1) - 1, day || 1);
+  return localDate.toLocaleDateString("fr-CA");
+};
+
 function InvoiceList({ invoices, onDeleteInvoice, onGeneratePDF }: InvoiceListProps) {
   if (invoices.length === 0) {
     return (
@@ -20,9 +26,7 @@ function InvoiceList({ invoices, onDeleteInvoice, onGeneratePDF }: InvoiceListPr
           <div className="flex justify-between items-start mb-4">
             <div>
               <h3 className="text-lg font-semibold">Facture #{invoice.invoiceNumber}</h3>
-              <p className="text-gray-600">
-                Date: {new Date(invoice.invoiceDate).toLocaleDateString("fr-CA")}
-              </p>
+              <p className="text-gray-600">Date: {formatLocalDate(invoice.invoiceDate)}</p>
               <p className="text-gray-600">Client: {invoice.customerName}</p>
               {invoice.customerAddress && (
                 <p className="text-sm text-gray-500 whitespace-pre-line">
