@@ -2,6 +2,12 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { Invoice } from "../types/invoice";
 
+const formatLocalDate = (value: string): string => {
+  const [year, month, day] = value.split("-").map(Number);
+  const localDate = new Date(year, (month || 1) - 1, day || 1);
+  return localDate.toLocaleDateString("fr-CA");
+};
+
 export const generateInvoicePDF = async (invoice: Invoice): Promise<void> => {
   const doc = new jsPDF();
 
@@ -30,7 +36,7 @@ export const generateInvoicePDF = async (invoice: Invoice): Promise<void> => {
   doc.setFont("helvetica", "bold");
   doc.text("Date:", 20, 62);
   doc.setFont("helvetica", "normal");
-  doc.text(new Date(invoice.invoiceDate).toLocaleDateString("fr-CA"), 50, 62);
+  doc.text(formatLocalDate(invoice.invoiceDate), 50, 62);
 
   // Informations du client
   doc.setFont("helvetica", "bold");
