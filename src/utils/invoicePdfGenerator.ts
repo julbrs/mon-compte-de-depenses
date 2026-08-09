@@ -10,6 +10,8 @@ const formatLocalDate = (value: string): string => {
 
 export const generateInvoicePDF = async (invoice: Invoice): Promise<void> => {
   const doc = new jsPDF();
+  const isCreditNote = invoice.documentType === "credit-note";
+  const documentLabel = isCreditNote ? "AVOIR" : "FACTURE";
 
   // En-tête avec logo/nom de l'entreprise
   doc.setFontSize(22);
@@ -24,12 +26,12 @@ export const generateInvoicePDF = async (invoice: Invoice): Promise<void> => {
 
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text("FACTURE", 105, 42, { align: "center" });
+  doc.text(documentLabel, 105, 42, { align: "center" });
 
   // Informations de la facture
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text("Facture #:", 20, 55);
+  doc.text(`${isCreditNote ? "Avoir" : "Facture"} #:`, 20, 55);
   doc.setFont("helvetica", "normal");
   doc.text(invoice.invoiceNumber, 50, 55);
 
@@ -38,13 +40,20 @@ export const generateInvoicePDF = async (invoice: Invoice): Promise<void> => {
   doc.setFont("helvetica", "normal");
   doc.text(formatLocalDate(invoice.invoiceDate), 50, 62);
 
+  if (isCreditNote) {
+    doc.setFont("helvetica", "bold");
+    doc.text("Facture d'origine #:", 20, 69);
+    doc.setFont("helvetica", "normal");
+    doc.text(invoice.referenceInvoiceNumber, 65, 69);
+  }
+
   // Informations du client
   doc.setFont("helvetica", "bold");
-  doc.text("Facturé à:", 20, 75);
+  doc.text(isCreditNote ? "Remboursé à:" : "Facturé à:", 20, isCreditNote ? 82 : 75);
   doc.setFont("helvetica", "normal");
-  doc.text(invoice.customerName, 20, 82);
+  doc.text(invoice.customerName, 20, isCreditNote ? 89 : 82);
 
-  let currentY = 87;
+  let currentY = isCreditNote ? 94 : 87;
   if (invoice.customerAddress && invoice.customerAddress.trim()) {
     const addressLines = doc.splitTextToSize(invoice.customerAddress, 80);
     doc.text(addressLines, 20, currentY);
@@ -82,7 +91,7 @@ export const generateInvoicePDF = async (invoice: Invoice): Promise<void> => {
     foot: [
       [
         {
-          content: "TOTAL",
+          content: isCreditNote ? "MONTANT À REMBOURSER" : "TOTAL",
           colSpan: 4,
           styles: { halign: "right", fontStyle: "bold", fontSize: 11 },
         },
@@ -116,7 +125,7 @@ export const generateInvoicePDF = async (invoice: Invoice): Promise<void> => {
   doc.text("Sentiers Frontaliers Inc.", 105, pageHeight - 15, { align: "center" });
 
   // Télécharger le PDF
-  const fileName = `Facture_${invoice.invoiceNumber.replace(
+  const fileName = `${isCreditNote ? "Avoir" : "Facture"}_${invoice.invoiceNumber.replace(
     /\//g,
     "-"
   )}_${invoice.customerName.replace(/\s+/g, "_")}.pdf`;

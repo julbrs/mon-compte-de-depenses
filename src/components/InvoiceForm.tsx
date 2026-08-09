@@ -10,6 +10,8 @@ function InvoiceForm({ onAddInvoice }: InvoiceFormProps) {
 
   const [invoiceNumber, setInvoiceNumber] = useState(defaultInvoiceNumber);
   const [invoiceDate, setInvoiceDate] = useState(today.toISOString().split("T")[0]);
+  const [documentType, setDocumentType] = useState<"invoice" | "credit-note">("invoice");
+  const [referenceInvoiceNumber, setReferenceInvoiceNumber] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [comments, setComments] = useState("");
@@ -68,6 +70,10 @@ function InvoiceForm({ onAddInvoice }: InvoiceFormProps) {
       alert("Veuillez entrer une date de facture");
       return;
     }
+    if (documentType === "credit-note" && !referenceInvoiceNumber.trim()) {
+      alert("Veuillez entrer le numéro de la facture à créditer");
+      return;
+    }
     if (!customerName.trim()) {
       alert("Veuillez entrer le nom du client");
       return;
@@ -78,8 +84,10 @@ function InvoiceForm({ onAddInvoice }: InvoiceFormProps) {
     }
 
     onAddInvoice({
+      documentType,
       invoiceNumber,
       invoiceDate,
+      referenceInvoiceNumber,
       customerName,
       customerAddress,
       lines,
@@ -89,6 +97,8 @@ function InvoiceForm({ onAddInvoice }: InvoiceFormProps) {
     // Reset form
     setInvoiceNumber(defaultInvoiceNumber);
     setInvoiceDate(today.toISOString().split("T")[0]);
+    setDocumentType("invoice");
+    setReferenceInvoiceNumber("");
     setCustomerName("");
     setCustomerAddress("");
     setComments("");
@@ -99,11 +109,34 @@ function InvoiceForm({ onAddInvoice }: InvoiceFormProps) {
     <div className="space-y-6">
       {/* Invoice Header Information */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Informations de la facture</h2>
+        <h2 className="text-xl font-semibold mb-4">Type de document et informations</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="md:col-span-2">
+            <span className="block text-sm font-medium text-gray-700 mb-1">Type de document</span>
+            <div className="flex gap-5">
+              <label className="flex items-center gap-2 text-gray-700">
+                <input
+                  type="radio"
+                  name="documentType"
+                  checked={documentType === "invoice"}
+                  onChange={() => setDocumentType("invoice")}
+                />
+                Facture
+              </label>
+              <label className="flex items-center gap-2 text-gray-700">
+                <input
+                  type="radio"
+                  name="documentType"
+                  checked={documentType === "credit-note"}
+                  onChange={() => setDocumentType("credit-note")}
+                />
+                Avoir / remboursement
+              </label>
+            </div>
+          </div>
           <div>
             <label htmlFor="invoiceNumber" className="block text-sm font-medium text-gray-700 mb-1">
-              Numéro de facture
+              Numéro de {documentType === "credit-note" ? "l'avoir" : "facture"}
             </label>
             <input
               type="text"
@@ -114,6 +147,21 @@ function InvoiceForm({ onAddInvoice }: InvoiceFormProps) {
               placeholder="YYYY-MM-xxxx"
             />
           </div>
+          {documentType === "credit-note" && (
+            <div>
+              <label htmlFor="referenceInvoiceNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                Facture d'origine à créditer
+              </label>
+              <input
+                type="text"
+                id="referenceInvoiceNumber"
+                value={referenceInvoiceNumber}
+                onChange={(e) => setReferenceInvoiceNumber(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Numéro de la facture d'origine"
+              />
+            </div>
+          )}
           <div>
             <label htmlFor="invoiceDate" className="block text-sm font-medium text-gray-700 mb-1">
               Date de facture
@@ -283,7 +331,7 @@ function InvoiceForm({ onAddInvoice }: InvoiceFormProps) {
           onClick={handleSubmitInvoice}
           className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 font-semibold text-lg"
         >
-          Créer la facture
+          Créer {documentType === "credit-note" ? "l'avoir" : "la facture"}
         </button>
       )}
     </div>

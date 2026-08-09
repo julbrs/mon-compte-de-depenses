@@ -7,8 +7,10 @@ export interface InvoiceLine {
 
 export interface Invoice {
   id: number;
+  documentType: "invoice" | "credit-note";
   invoiceNumber: string;
   invoiceDate: string;
+  referenceInvoiceNumber: string;
   customerName: string;
   customerAddress: string;
   lines: InvoiceLine[];

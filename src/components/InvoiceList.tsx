@@ -25,8 +25,13 @@ function InvoiceList({ invoices, onDeleteInvoice, onGeneratePDF }: InvoiceListPr
         <div key={invoice.id} className="bg-white p-6 rounded-lg shadow-md">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="text-lg font-semibold">Facture #{invoice.invoiceNumber}</h3>
+              <h3 className="text-lg font-semibold">
+                {invoice.documentType === "credit-note" ? "Avoir" : "Facture"} #{invoice.invoiceNumber}
+              </h3>
               <p className="text-gray-600">Date: {formatLocalDate(invoice.invoiceDate)}</p>
+              {invoice.documentType === "credit-note" && (
+                <p className="text-gray-600">Crédite la facture #{invoice.referenceInvoiceNumber}</p>
+              )}
               <p className="text-gray-600">Client: {invoice.customerName}</p>
               {invoice.customerAddress && (
                 <p className="text-sm text-gray-500 whitespace-pre-line">
@@ -35,7 +40,8 @@ function InvoiceList({ invoices, onDeleteInvoice, onGeneratePDF }: InvoiceListPr
               )}
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-green-600">
+              <p className={`text-2xl font-bold ${invoice.documentType === "credit-note" ? "text-red-600" : "text-green-600"}`}>
+                {invoice.documentType === "credit-note" ? "-" : ""}
                 {calculateInvoiceTotal(invoice).toFixed(2)} $ CAD
               </p>
             </div>

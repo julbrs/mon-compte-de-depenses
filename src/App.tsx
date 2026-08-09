@@ -237,7 +237,7 @@ function App() {
 
             {invoices.length > 0 && (
               <div className="mt-8">
-                <h2 className="text-2xl font-bold text-green-800 mb-4">Factures créées</h2>
+                <h2 className="text-2xl font-bold text-green-800 mb-4">Factures et avoirs créés</h2>
                 <InvoiceList
                   invoices={invoices}
                   onDeleteInvoice={deleteInvoice}
