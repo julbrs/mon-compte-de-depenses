@@ -16,7 +16,7 @@ function App() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [volunteerName, setVolunteerName] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
-  const [kmRate] = useState(0.25); // Taux par km en dollars
+  const [kmRate] = useState(0.4); // Taux par km en dollars (0,40 $/km)
 
   const addExpense = (expense: Omit<Expense, "id">) => {
     setExpenses([...expenses, { ...expense, id: Date.now() }]);

@@ -59,10 +59,10 @@ pnpm run deploy
 
 ### Configuration du taux kilométrique
 
-Le taux kilométrique est actuellement fixé à **0,25 $/km**. Pour le modifier, éditez le fichier `src/App.tsx` à la ligne :
+Le taux kilométrique est actuellement fixé à **0,40 $/km**. Pour le modifier, éditez le fichier `src/App.tsx` à la ligne :
 
 ```typescript
-const [kmRate] = useState(0.25);
+const [kmRate] = useState(0.4);
 ```
 
 ## 🛠️ Technologies utilisées

@@ -2,6 +2,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { PDFDocument } from "pdf-lib";
 import type { Expense } from "../types/expense";
+import { formatRate } from "./formatRate.ts";
 
 export const generatePDF = async (
   volunteerName: string,
@@ -42,7 +43,7 @@ export const generatePDF = async (
         index + 1,
         "Kilométrage",
         expense.description,
-        `Date: ${formattedDate}\n${expense.kilometers} km × ${kmRate} $/km`,
+        `Date: ${formattedDate}\n${expense.kilometers} km × ${formatRate(kmRate)} $/km`,
         `${((expense.kilometers || 0) * kmRate).toFixed(2)} $`,
       ];
     }
@@ -88,7 +89,7 @@ export const generatePDF = async (
   // Note de bas de page
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.text("Taux de remboursement kilométrique : " + kmRate + " $/km", 20, currentY);
+  doc.text("Taux de remboursement kilométrique : " + formatRate(kmRate) + " $/km", 20, currentY);
 
   const invoiceExpenses = expenses.filter((e) => e.type === "invoice");
   if (invoiceExpenses.length > 0) {

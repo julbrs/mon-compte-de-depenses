@@ -1,4 +1,5 @@
 import type { ExpenseListProps } from "../types/expense";
+import { formatRate } from "../utils/formatRate.ts";
 
 function ExpenseList({ expenses, onDeleteExpense, kmRate }: ExpenseListProps) {
   if (expenses.length === 0) {
@@ -57,7 +58,7 @@ function ExpenseList({ expenses, onDeleteExpense, kmRate }: ExpenseListProps) {
                     <div className="flex flex-col gap-1">
                       <span>📅 {new Date(expense.kmDate || "").toLocaleDateString("fr-CA")}</span>
                       <span>
-                        {expense.kilometers} km × {kmRate} $/km
+                        {expense.kilometers} km × {formatRate(kmRate)} $/km
                       </span>
                     </div>
                   )}

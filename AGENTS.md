@@ -11,7 +11,7 @@
 - `src/main.tsx` mounts the single `App.tsx`; `App.tsx` owns all in-memory expense and invoice state and switches between the two views.
 - Expense and invoice data contracts live in `src/types/expense.ts` and `src/types/invoice.ts`. Keep form components, list components, and PDF generators aligned with these types.
 - `src/utils/pdfGenerator.ts` creates the expense report and appends attached invoice PDF pages with `pdf-lib`; attachments are browser `File` objects and are not persisted. `src/utils/invoicePdfGenerator.ts` generates customer invoices.
-- Kilometer reimbursement is currently fixed at `0.25` in `App.tsx`; change that source of truth rather than duplicating the rate.
+- Kilometer reimbursement is currently fixed at `0.40` in `App.tsx`; change that source of truth rather than duplicating the rate.
 
 ## Frontend And Deployment
 

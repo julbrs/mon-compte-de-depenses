@@ -1,5 +1,6 @@
 import { useState, FormEvent, ChangeEvent } from "react";
 import type { ExpenseFormProps, Expense } from "../types/expense";
+import { formatRate } from "../utils/formatRate.ts";
 
 function ExpenseForm({ onAddExpense, onAddMultipleExpenses, kmRate }: ExpenseFormProps) {
   const [expenseType, setExpenseType] = useState<"invoice" | "km">("invoice");
@@ -151,9 +152,12 @@ function ExpenseForm({ onAddExpense, onAddMultipleExpenses, kmRate }: ExpenseFor
                 onChange={(e) => setExpenseType(e.target.value as "invoice" | "km")}
                 className="w-4 h-4 text-green-600 focus:ring-green-500"
               />
-              <span className="text-gray-700">Kilométrage ({kmRate} $/km)</span>
+              <span className="text-gray-700">Kilométrage ({formatRate(kmRate)} $/km)</span>
             </label>
           </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Taux adopté par décision du conseil d'administration du 27 septembre 2026.
+          </p>
         </div>
 
         <div>
